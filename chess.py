@@ -390,9 +390,11 @@ class Board:
             if self.checkmate is not None:
                 print(f'{self.checkmate} is checkmated!')
 
-    def prompt(self):
+    def prompt(self,inputstr):
+        """i made quite a bit of change in prompt, is it allowed and is it recommanded? prompt now may return different type of value"""
         if self.debug:
             print('== PROMPT ==')
+
         def valid_format(inputstr):
             return len(inputstr) == 5 and inputstr[2] == ' ' \
                 and inputstr[0:1].isdigit() \
@@ -411,19 +413,25 @@ class Board:
             end = (int(end[0]), int(end[1]))
             return (start, end)
 
-        while True:
-            inputstr = input(f'{self.turn.title()} player: ')
-            if not valid_format(inputstr):
-                print('Invalid move. Please enter your move in the '
-                      'following format: __ __, _ represents a digit.')
-            elif not valid_num(inputstr):
-                print('Invalid move. Move digits should be 0-7.')
+         #while True:
+            #inputstr = input(f'{self.turn.title()} player: ')
+        if not valid_format(inputstr):
+            #print('Invalid move. Please enter your move in the following format: __ __, _ represents a digit.')
+            errmsg = 'Invalid move. Please enter your move in the following format: __ __, _ represents a digit.'
+            return errmsg
+        elif not valid_num(inputstr):
+            #print('Invalid move. Move digits should be 0-7.')
+            errmsg ='Invalid move. Move digits should be 0-7.'
+            return errmsg
+        else:
+            start, end = split_and_convert(inputstr)
+            if self.movetype(start, end) is None:
+                #print('Invalid move. Please make a valid move.')
+                errmsg = 'Invalid move. Please make a valid move.'
+                return errmsg
             else:
-                start, end = split_and_convert(inputstr)
-                if self.movetype(start, end) is None:
-                    print('Invalid move. Please make a valid move.')
-                else:
-                    return start, end
+                # return start, end
+                return None
 
     def update(self, start, end):
         '''
