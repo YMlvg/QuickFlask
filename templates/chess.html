@@ -8,8 +8,20 @@
     </head>
     <body>
         <!-- Modify this section START -->
-        <p>[Placeholder for chess board]</p>
-        <p>Add a form here to get player input. Don't forget the submit button.</p>
+        <table>
+            {% for row in ui.board %}
+                <tr>
+                {% for cell in row %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <form action=/play, method="POST">
+        <input type="text" name="move" value=""><br>
+        <button tyep="submit">Move</button>
+        </form>
+
         <p>We’ll have some code here to insert error messages, if any. Stay tuned.</p>
         <!-- Modify this section END -->
     </body>

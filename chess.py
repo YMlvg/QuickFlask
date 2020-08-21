@@ -361,6 +361,7 @@ class Board:
         First letter is the colour (W for white, B for black).
         Second letter is the name (Starting letter for each piece).
         '''
+        visual = []
         if self.debug:
             print('== DEBUG MODE ON ==')
         # helper function to generate symbols for piece
@@ -370,31 +371,43 @@ class Board:
             return f'{colour_sym}{piece_sym}'
 
         # Row 7 is at the top, so print in reverse order
-        print(' ' * 4, end='')
-        print('  '.join([f'{i:2}' for i in range(8)]), end='\n\n')
+        #print(' ' * 4, end='')
+        line = []
+        line.append('  '*2)
+        #print('  '.join([f'{i:2}' for i in range(8)]), end='\n\n')
+        line.append('  '.join([f'{i}' for i in range(8)]))
+        visual.append("".join(line))
         for row in range(7, -1, -1):
-            print(f'{row:2}  ', end='')
+            line = []
+            #print(f'{row:2}  ', end='')
+            line.append(row)
             for col in range(8):
                 coord = (col, row)  # tuple
                 if coord in self.coords():
                     piece = self.get_piece(coord)
-                    print(f'{sym(piece)}', end='')
+                    #print(f'{sym(piece)}', end='')
+                    line.append(f'{sym(piece)}')
                 else:
                     piece = None
-                    print('  ', end='')
+                    #print('  ', end='')
+                    line.append('  ')
                 if col == 7:     # Put line break at the end
-                    print('')
-                else:            # Print two spaces between pieces
-                    print('  ', end='')
-            print(' '*15)
-            if self.checkmate is not None:
-                print(f'{self.checkmate} is checkmated!')
+                    #print('')
 
-    def prompt(self,inputstr):
-        """i made quite a bit of change in prompt, is it allowed and is it recommanded? prompt now may return different type of value"""
+                    visual.append(line)
+                else:            # Print two spaces between pieces
+                    #print('  ', end='')
+                    line.append('  ')
+            #print(' '*15)
+        if self.checkmate is not None:
+            visual.append(' '*15)
+            #print(f'{self.checkmate} is checkmated!')
+            visual.append(f'{self.checkmate} is checkmated!')
+        return visual
+
+    def prompt(self):
         if self.debug:
             print('== PROMPT ==')
-
         def valid_format(inputstr):
             return len(inputstr) == 5 and inputstr[2] == ' ' \
                 and inputstr[0:1].isdigit() \
@@ -413,25 +426,19 @@ class Board:
             end = (int(end[0]), int(end[1]))
             return (start, end)
 
-         #while True:
-            #inputstr = input(f'{self.turn.title()} player: ')
-        if not valid_format(inputstr):
-            #print('Invalid move. Please enter your move in the following format: __ __, _ represents a digit.')
-            errmsg = 'Invalid move. Please enter your move in the following format: __ __, _ represents a digit.'
-            return errmsg
-        elif not valid_num(inputstr):
-            #print('Invalid move. Move digits should be 0-7.')
-            errmsg ='Invalid move. Move digits should be 0-7.'
-            return errmsg
-        else:
-            start, end = split_and_convert(inputstr)
-            if self.movetype(start, end) is None:
-                #print('Invalid move. Please make a valid move.')
-                errmsg = 'Invalid move. Please make a valid move.'
-                return errmsg
+        while True:
+            inputstr = input(f'{self.turn.title()} player: ')
+            if not valid_format(inputstr):
+                print('Invalid move. Please enter your move in the '
+                      'following format: __ __, _ represents a digit.')
+            elif not valid_num(inputstr):
+                print('Invalid move. Move digits should be 0-7.')
             else:
-                # return start, end
-                return None
+                start, end = split_and_convert(inputstr)
+                if self.movetype(start, end) is None:
+                    print('Invalid move. Please make a valid move.')
+                else:
+                    return start, end
 
     def update(self, start, end):
         '''
