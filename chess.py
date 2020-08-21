@@ -438,7 +438,7 @@ class Board:
                 if self.movetype(start, end) is None:
                     print('Invalid move. Please make a valid move.')
                 else:
-                    return start, end
+                    return True,( start, end)
 
     def update(self, start, end):
         '''
