@@ -314,15 +314,22 @@ class Board:
             return Queen
 
     def printmove(self, start, end, **kwargs):
+        '''changes made to return message '''
+        msg = []
         startstr = f'{start[0]}{start[1]}'
         endstr = f'{end[0]}{end[1]}'
-        print(f'{self.get_piece(start)} {startstr} -> {endstr}', end='')
+        #print(f'{self.get_piece(start)} {startstr} -> {endstr}', end='')
+        msg.append(f'{self.get_piece(start)} {startstr} -> {endstr}')
         if kwargs.get('capture', False):
-            print(f' captures {self.get_piece(end)}')
+            #print(f' captures {self.get_piece(end)}')
+            msg.append(f' captures {self.get_piece(end)}')
         elif kwargs.get('castling', False):
-            print(f' (castling)')
+            #print(f' (castling)')
+            msg.append(f' (castling)')
         else:
-            print('')
+            #print('')
+            msg.append('')
+        return ''.join(msg)
 
     def start(self):
         colour = 'black'
@@ -373,9 +380,9 @@ class Board:
         # Row 7 is at the top, so print in reverse order
         #print(' ' * 4, end='')
         line = []
-        line.append('  '*2)
+        line.append(' ')
         #print('  '.join([f'{i:2}' for i in range(8)]), end='\n\n')
-        line.append('  '.join([f'{i}' for i in range(8)]))
+        line.append(' '.join([f'{i}' for i in range(8)]))
         visual.append("".join(line))
         for row in range(7, -1, -1):
             line = []
@@ -405,7 +412,8 @@ class Board:
             visual.append(f'{self.checkmate} is checkmated!')
         return visual
 
-    def prompt(self):
+    def prompt(self,inputstr):
+        """Change prompt to return the error message """
         if self.debug:
             print('== PROMPT ==')
         def valid_format(inputstr):
@@ -427,18 +435,22 @@ class Board:
             return (start, end)
 
         while True:
-            inputstr = input(f'{self.turn.title()} player: ')
+            errmsg = None
+            #inputstr = input(f'{self.turn.title()} player: ')
             if not valid_format(inputstr):
-                print('Invalid move. Please enter your move in the '
-                      'following format: __ __, _ represents a digit.')
+                #print('Invalid move. Please enter your move in the following format: __ __, _ represents a digit.')
+                errmsg = 'Invalid move. Please enter your move in the following format: __ __, _ represents a digit.' 
             elif not valid_num(inputstr):
-                print('Invalid move. Move digits should be 0-7.')
+                #print('Invalid move. Move digits should be 0-7.')
+                errmsg = 'Invalid move. Move digits should be 0-7.'
             else:
                 start, end = split_and_convert(inputstr)
                 if self.movetype(start, end) is None:
-                    print('Invalid move. Please make a valid move.')
+                    #print('Invalid move. Please make a valid move.')
+                    errmsg = 'Invalid move. Please make a valid move.'
                 else:
-                    return True,( start, end)
+                    return start, end
+            return errmsg
 
     def update(self, start, end):
         '''
@@ -450,13 +462,16 @@ class Board:
         movetype = self.movetype(start, end)
         if movetype is None:
             raise MoveError(f'Invalid move ({self.printmove(start, end)})')
+
         elif movetype == 'castling':
             self.printmove(start, end, castling=True)
             self.castle(start, end)
+
         elif movetype == 'capture':
             self.printmove(start, end, capture=True)
             self.remove(end)
             self.move(start, end)
+            
         elif movetype == 'move':
             self.printmove(start, end)
             self.move(start, end)
