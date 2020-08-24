@@ -5,9 +5,11 @@
         <!-- Change your page title -->
         <title>This is the page title</title>
         <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+        
     </head>
     <body>
         <!-- Modify this section START -->
+
         <table>
             {% for row in ui.board %}
                 <tr>
@@ -17,9 +19,10 @@
                 </tr>
             {% endfor %}
         </table>
+        {{ui.inputlabel}}
         <form action="/play", method="post">
         <input type="text" name="move" value=""><br>
-        <button tyep="submit">Move</button>
+        <button type="submit">Move</button>
         </form>
 
         <p>We’ll have some code here to insert error messages, if any. Stay tuned.</p>

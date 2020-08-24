@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template, redirect,request
-from chess import WebInterface, Board
+from chess import WebInterface, Board, InputError
 
 
 app = Flask(__name__)
@@ -50,6 +50,7 @@ def play():
 
         
     return render_template('chess.html',ui=ui)
+  
     # TODO: Validate move, redirect player back to /play again if move is invalid
     # If move is valid, check for pawns to promote
     # Redirect to /promote if there are pawns to promote, otherwise 

@@ -1,3 +1,6 @@
+class InputError(Exception):
+    pass
+
 class WebInterface:
     def __init__(self):
         self.inputlabel = None
@@ -179,6 +182,8 @@ class Board:
         self._position[coord] = piece
 
     def move(self, start, end):
+        if self.get_piece(end) is not None:
+            self.remove(end)
         piece = self.get_piece(start)
         self.remove(start)
         self.add(end, piece)
@@ -215,18 +220,20 @@ class Board:
                 return True
         return False
     
-    def promotepawns(self, PieceClass=None):
+    def check_for_promotion(self):
+        '''
+        
+        '''
         for coord in self.coords():
             row = coord[1]
             piece = self.get_piece(coord)
             for opprow, colour in zip([0, 7], ['black', 'white']):
                 if row == opprow and piece.name == 'pawn' \
                         and piece.colour == colour:
-                    if PieceClass is None:
-                        PieceClass = self.promoteprompt()
-                    promoted_piece = PieceClass(colour)
-                    self.remove(coord)
-                    self.add(coord, promoted_piece)
+                    return coord
+        return None
+                    # self.remove(coord)
+                    # self.add(coord, promoted_piece)
 
     def king_and_rook_unmoved(self, colour, rook_coord):
         row = rook_coord[1]
@@ -297,39 +304,23 @@ class Board:
                 return None
         return True
 
-    @classmethod
-    def promoteprompt(cls):
-        choice = input(f'Promote pawn to '
-                    '(r=Rook, k=Knight, b=Bishop, '
-                    'q=Queen): ').lower()
-        if choice not in 'rkbq':
-            return cls.promoteprompt()
-        elif choice == 'r':
-            return Rook
-        elif choice == 'k':
-            return Knight
-        elif choice == 'b':
-            return Bishop
-        elif choice == 'q':
-            return Queen
-
-    def printmove(self, start, end, **kwargs):
-        '''changes made to return message '''
-        msg = []
-        startstr = f'{start[0]}{start[1]}'
-        endstr = f'{end[0]}{end[1]}'
-        #print(f'{self.get_piece(start)} {startstr} -> {endstr}', end='')
-        msg.append(f'{self.get_piece(start)} {startstr} -> {endstr}')
-        if kwargs.get('capture', False):
-            #print(f' captures {self.get_piece(end)}')
-            msg.append(f' captures {self.get_piece(end)}')
-        elif kwargs.get('castling', False):
-            #print(f' (castling)')
-            msg.append(f' (castling)')
-        else:
-            #print('')
-            msg.append('')
-        return ''.join(msg)
+    # def printmove(self, start, end, **kwargs):
+    #     '''changes made to return message '''
+    #     msg = []
+    #     startstr = f'{start[0]}{start[1]}'
+    #     endstr = f'{end[0]}{end[1]}'
+    #     #print(f'{self.get_piece(start)} {startstr} -> {endstr}', end='')
+    #     msg.append(f'{self.get_piece(start)} {startstr} -> {endstr}')
+    #     if kwargs.get('capture', False):
+    #         #print(f' captures {self.get_piece(end)}')
+    #         msg.append(f' captures {self.get_piece(end)}')
+    #     elif kwargs.get('castling', False):
+    #         #print(f' (castling)')
+    #         msg.append(f' (castling)')
+    #     else:
+    #         #print('')
+    #         msg.append('')
+    #     return ''.join(msg)
 
     def start(self):
         colour = 'black'
@@ -412,10 +403,11 @@ class Board:
             visual.append(f'{self.checkmate} is checkmated!')
         return visual
 
-    def prompt(self,inputstr):
-        """Change prompt to return the error message """
-        if self.debug:
-            print('== PROMPT ==')
+    def split_input(self,inputstr):
+        """
+        Return the input as a pair of
+        tuple coordinates - start, end
+        """
         def valid_format(inputstr):
             return len(inputstr) == 5 and inputstr[2] == ' ' \
                 and inputstr[0:1].isdigit() \
@@ -434,51 +426,20 @@ class Board:
             end = (int(end[0]), int(end[1]))
             return (start, end)
 
-        while True:
-            errmsg = None
-            #inputstr = input(f'{self.turn.title()} player: ')
-            if not valid_format(inputstr):
-                #print('Invalid move. Please enter your move in the following format: __ __, _ represents a digit.')
-                errmsg = 'Invalid move. Please enter your move in the following format: __ __, _ represents a digit.' 
-            elif not valid_num(inputstr):
-                #print('Invalid move. Move digits should be 0-7.')
-                errmsg = 'Invalid move. Move digits should be 0-7.'
-            else:
-                start, end = split_and_convert(inputstr)
-                if self.movetype(start, end) is None:
-                    #print('Invalid move. Please make a valid move.')
-                    errmsg = 'Invalid move. Please make a valid move.'
-                else:
-                    return start, end
-            return errmsg
+        if not valid_format(inputstr):
+            raise InputError
+        elif not valid_num(inputstr):
+            raise InputError
+        else:
+            start, end = split_and_convert(inputstr)
+            return start, end
 
     def update(self, start, end):
         '''
         Update board according to requested move.
         If an opponent piece is at end, capture it.
         '''
-        if self.debug:
-            print('== UPDATE ==')
-        movetype = self.movetype(start, end)
-        if movetype is None:
-            raise MoveError(f'Invalid move ({self.printmove(start, end)})')
-
-        elif movetype == 'castling':
-            self.printmove(start, end, castling=True)
-            self.castle(start, end)
-
-        elif movetype == 'capture':
-            self.printmove(start, end, capture=True)
-            self.remove(end)
-            self.move(start, end)
-            
-        elif movetype == 'move':
-            self.printmove(start, end)
-            self.move(start, end)
-        else:
-            raise MoveError('Unknown error, please report '
-                             f'(movetype={repr(movetype)}).')
-        self.promotepawns()
+        self.move(start, end)
         if not self.alive('white', 'king'):
             self.winner = 'black'
         elif not self.alive('black', 'king'):
