@@ -44,6 +44,8 @@ def play():
             game.next_turn()
             ui.board = game.display()
             ui.inputlabel = f'{game.turn} player: '
+
+        
     return render_template('chess.html',ui=ui)
     valid,output = game.prompt(move)
     
