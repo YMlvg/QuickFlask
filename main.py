@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template, redirect,request
-from chess import WebInterface, Board
+from chess import WebInterface, Board, InputError
 
 
 app = Flask(__name__)
@@ -29,42 +29,25 @@ def play():
     # TODO: if there is no player move, render the page template
     if request.method == 'POST':
         move = request.form["move"]
- 
-        prompt_result = game.prompt(move) 
-        #it return string if there is error, return a tuple(start,end)when the move is valid
-        if type(prompt_result) == str:
-            ui.errmsg = prompt_result
-        elif type(prompt_result) == tuple:
-            start, end = prompt_result
-            ui.errmsg = None
-
-        if ui.errmsg == None:
-            try:
-                game.update(start, end)
-            except :
-                ui.errmsg = (f'Invalid move ({game.printmove(start, end)})')
-            else:
-                game.next_turn()
-                ui.board = game.display()
-                ui.inputlabel = f'{game.turn} player: '
-
-        
+        try:
+            start, end = game.split_input(move) 
+        except InputError:
+            ui.errmsg = 'Invalid move format, please try again'
+            render_template('chess.html', ui=ui)
+        movetype = self.movetype(start, end)
+        if movetype is None:
+            ui.errmsg = 'Invalid move for the piece, please try again'
+            render_template('chess.html', ui=ui)
+        game.update(start, end)
+        coord = game.check_for_promotion()
+        if coord is not None:
+            return redirect('/promote')
+        game.next_turn()
+    ui.board = game.display()
+    ui.inputlabel = f'{game.turn} player: '
+    ui.errmsg = None
     return render_template('chess.html',ui=ui)
-    valid,output = game.prompt(move)
-    
   
-    if valid:
-        if game.promotepawns():
-            return redirect('/promote')      
-        else: 
-            start, end = output
-            game.update(start, end)
-            return render_template('chess.html', ui=ui)
-    else:
-        return render_template('chess.html', ui=ui)
-#
-    
-    
     # TODO: Validate move, redirect player back to /play again if move is invalid
     # If move is valid, check for pawns to promote
     # Redirect to /promote if there are pawns to promote, otherwise 

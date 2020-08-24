@@ -9,6 +9,7 @@
     </head>
     <body>
         <!-- Modify this section START -->
+
         <table>
             {% for row in ui.board %}
                 <tr>
@@ -18,6 +19,7 @@
                 </tr>
             {% endfor %}
         </table>
+        {{ui.inputlabel}}
         <form action="/play", method="post">
         <input type="text" name="move" value=""><br>
         <button type="submit">Move</button>
