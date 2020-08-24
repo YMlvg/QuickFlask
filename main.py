@@ -36,14 +36,17 @@ def play():
             ui.errmsg = prompt_result
         elif type(prompt_result) == tuple:
             start, end = prompt_result
-        try:
-            game.update(start, end)
-        except :
-            ui.errmsg = (f'Invalid move ({game.printmove(start, end)})')
-        else:
-            game.next_turn()
-            ui.board = game.display()
-            ui.inputlabel = f'{game.turn} player: '
+            ui.errmsg = None
+
+        if ui.errmsg == None:
+            try:
+                game.update(start, end)
+            except :
+                ui.errmsg = (f'Invalid move ({game.printmove(start, end)})')
+            else:
+                game.next_turn()
+                ui.board = game.display()
+                ui.inputlabel = f'{game.turn} player: '
 
         
     return render_template('chess.html',ui=ui)
