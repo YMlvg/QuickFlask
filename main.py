@@ -27,8 +27,7 @@ def play():
     # TODO: get player move from GET request object
     # TODO: if there is no player move, render the page template
     if request.method == 'POST':
-        
-    return render_template('chess.html',ui=ui)
+        return render_template('chess.html',ui=ui)
     valid,output = game.prompt(move)
     
   
