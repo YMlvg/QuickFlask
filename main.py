@@ -47,6 +47,21 @@ def play():
 
         
     return render_template('chess.html',ui=ui)
+    valid,output = game.prompt(move)
+    
+  
+    if valid:
+        if game.promotepawns():
+            return redirect('/promote')      
+        else: 
+            start, end = output
+            game.update(start, end)
+            return render_template('chess.html', ui=ui)
+    else:
+        return render_template('chess.html', ui=ui)
+#
+    
+    
     # TODO: Validate move, redirect player back to /play again if move is invalid
     # If move is valid, check for pawns to promote
     # Redirect to /promote if there are pawns to promote, otherwise 
