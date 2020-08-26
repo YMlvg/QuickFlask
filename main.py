@@ -49,7 +49,7 @@ def play():
     ui.inputlabel = f'{game.turn} player: '
     ui.errmsg = None
     return render_template('chess.html',ui=ui)
-    
+
     # TODO: Validate move, redirect player back to /play again if move is invalid
     # If move is valid, check for pawns to promote
     # Redirect to /promote if there are pawns to promote, otherwise 
