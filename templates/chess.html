@@ -25,7 +25,10 @@
         <button type="submit">Move</button>
         </form>
 
-        <p>We’ll have some code here to insert error messages, if any. Stay tuned.</p>
+        {% if ui.errmsg is not none %}
+            <tr>
+            {{ui.errmsg}}
+        {% endif %}
         <!-- Modify this section END -->
     </body>
 </html>

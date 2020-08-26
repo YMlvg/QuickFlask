@@ -33,11 +33,13 @@ def play():
             start, end = game.split_input(move) 
         except InputError:
             ui.errmsg = 'Invalid move format, please try again'
-            render_template('chess.html', ui=ui)
-        movetype = self.movetype(start, end)
+            return render_template('chess.html', ui=ui)
+        movetype = game.movetype(start, end)
+        #import pdb;pdb.set_trace()
         if movetype is None:
             ui.errmsg = 'Invalid move for the piece, please try again'
-            render_template('chess.html', ui=ui)
+            return render_template('chess.html', ui=ui)
+        #import pdb; pdb.set_trace()
         game.update(start, end)
         coord = game.check_for_promotion()
         if coord is not None:
