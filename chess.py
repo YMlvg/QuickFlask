@@ -8,6 +8,62 @@ class WebInterface:
         self.errmsg = None
         self.board = None
 
+class MoveHistory:
+    """   
+    to store a list of move object in an CircularStack
+    """
+    def __init__(self):
+        self.size = 5
+        self.head = None
+        #self.list = []*5
+        self.list = [None]*self.size
+    
+    def push(self, move):
+        if self.head != None:
+            self.head = (self.head+1)%self.size
+        else:
+            self.head = 0
+        self.list[self.head] = move
+
+    
+    def pop(self):
+        not_em = False
+        for element in self.list:
+            if element != "":
+                not_em = True    
+        if self.head == None:
+            raise InputError
+        elif not_em == False:
+            raise InputError
+        else:
+            move = self.list[self.head]
+        
+        if self.head == 0:
+            self.head = self.size
+        else:
+            self.head = self.head - 1 
+            
+        return move
+
+
+    
+class Move:
+    """
+    Object from this class should store the piece(indculing colour) and the position involved(both start and end) and the include the piece being removed if any.
+    """
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        self.moved = None
+        self.removed = None
+    
+    def storepiece(self, board):
+        self.moved = board.get_piece(self.start)
+        self.removed = board.get_piece(self.end)
+    
+    def tuple(self):
+        return self.start,self.end
+
 class MoveError(Exception):
     '''Custom error for invalid moves.'''
     pass
@@ -165,12 +221,30 @@ class Board:
 
     update(start, end)
         Carries out the move (start -> end) and updates the board.
+    
+    undo(move_history)
+        carry out an undo with the head element in move_history
     '''
+
     def __init__(self, **kwargs):
         self.debug = kwargs.get('debug', False)
         self._position = {}
         self.winner = None
         self.checkmate = None
+
+    def undo(self, move_history):
+        move = move_history.pop()
+        moved = move.moved
+        removed = move.removed
+        start = move.start
+        end = move.end
+        tp = tuple(start)
+        self.remove(end)
+        self.add(tp,moved)
+        if removed != None:
+            tp = tuple(end)
+            self.add(tp,removed)
+         
     
     def coords(self):
         return list(self._position.keys())
@@ -434,11 +508,12 @@ class Board:
             start, end = split_and_convert(inputstr)
             return start, end
 
-    def update(self, start, end):
+    def update(self, start_end):
         '''
         Update board according to requested move.
         If an opponent piece is at end, capture it.
         '''
+        start,end = start_end
         self.move(start, end)
         if not self.alive('white', 'king'):
             self.winner = 'black'

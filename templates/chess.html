@@ -21,9 +21,18 @@
         </table>
         {{ui.inputlabel}}
         <form action="/play", method="post">
-        <input type="text" name="move" value=""><br>
-        <button type="submit">Move</button>
+        <input type="text" name="move" value="">
+        <br> 
+        <button type="submit" >Move</button>
+        _________
+        <button type="submit" >Undo</button>
+        <!--
+        <form action="/play", method="post">
+        <input type="text" name="undo" value="" hidden>
+        <button type="submit" > Undo </button>
+        -->
         </form>
+        
 
         {% if ui.errmsg is not none %}
             <tr>
