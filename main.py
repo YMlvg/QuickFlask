@@ -47,7 +47,7 @@ def play():
         
         try:
             start, end = game.split_input(move_str) 
-            move = Move(start, end      
+            move = Move(start, end)      
         except InputError:
             ui.errmsg = 'Invalid move format, please try again'
             return render_template('chess.html', ui=ui)
