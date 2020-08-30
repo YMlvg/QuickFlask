@@ -25,30 +25,29 @@ def newgame():
     ui.btnlabel = 'Move'
     return redirect('/play')
 
+@app.route('/undo',methods=["POST","GET"])
+def undo():
+    try:
+        game.undo(movehis)
+    except:
+        ui.errmsg = "No more undo allowed"
+        return render_template("chess.html",ui=ui)
+    game.next_turn()
+    ui.inputlabel = f'{game.turn} player: '
+    ui.error_msg = None
+    ui.board = game.display()
+    return render_template('chess.html', ui=ui)
+
 @app.route('/play',methods=["POST","GET"])
 def play():
     # TODO: get player move from GET request object
     # TODO: if there is no player move, render the page template
     if request.method == 'POST':
         move_str = request.form["move"]
-        if move_str == "" :
-            try:
-                game.undo(movehis)
-            except:
-                ui.errmsg = "No more undo allowed"
-                return render_template("chess.html",ui=ui)
-            game.next_turn()
-            ui.inputlabel = f'{game.turn} player: '
-            ui.error_msg = None
-            ui.board = game.display()
-            return render_template('chess.html', ui=ui)
-        
-        move_str = request.form["move"]
         
         try:
             start, end = game.split_input(move_str) 
-            move = Move(start, end)
-
+            move = Move(start, end      
         except InputError:
             ui.errmsg = 'Invalid move format, please try again'
             return render_template('chess.html', ui=ui)
@@ -56,6 +55,7 @@ def play():
         if movetype is None:
             ui.errmsg = 'Invalid move for the piece, please try again'
             return render_template('chess.html', ui=ui)
+
         move.storepiece(game)
 
         movehis.push(move)
@@ -67,6 +67,9 @@ def play():
     ui.board = game.display()
     ui.inputlabel = f'{game.turn} player: '
     ui.errmsg = None
+    if game.winner != None:
+            ui.inputlabel = game.winner
+            return render_template('win.html',ui=ui)
     return render_template('chess.html',ui=ui)
 
     # TODO: Validate move, redirect player back to /play again if move is invalid
