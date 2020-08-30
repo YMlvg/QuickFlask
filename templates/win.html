@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- Change your page title -->
+        <title>This is the page title</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+        
+    </head>
+    <body>
+        <table>
+            {% for row in ui.board %}
+                <tr>
+                {% for cell in row %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <p>
+        {{ui.inputlabel}} player wins the game!
+        </p>
+        <!-- Modify this section END -->
+    </body>
+</html>
