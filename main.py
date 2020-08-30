@@ -44,9 +44,10 @@ def play():
     # TODO: if there is no player move, render the page template
     if request.method == 'POST':
         move_str = request.form["move"]
+        
         try:
             start, end = game.split_input(move_str) 
-            move = Move(start, end)
+            move = Move(start, end      
         except InputError:
             ui.errmsg = 'Invalid move format, please try again'
             return render_template('chess.html', ui=ui)
@@ -54,8 +55,9 @@ def play():
         if movetype is None:
             ui.errmsg = 'Invalid move for the piece, please try again'
             return render_template('chess.html', ui=ui)
-        
+
         move.storepiece(game)
+
         movehis.push(move)
         game.update(move.tuple())
         coord = game.check_for_promotion()
